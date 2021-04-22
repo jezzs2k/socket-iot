@@ -1,12 +1,18 @@
 #include <ESP8266WiFi.h>
-#include <SoftwareSerial.h>
 #include <SocketIOClient.h>
-#include <ArduinoJson.h>
+//#include <ArduinoJson.h>
+#include <SoftwareSerial.h>
+#include <SerialCommand.h>
+
+extern "C" {
+  #include "user_interface.h"  
+}
 
 const byte RX = D1;
 const byte TX = D2;
 
-SoftwareSerial mySerial = SoftwareSerial(RX, TX); 
+SoftwareSerial mySerial = SoftwareSerial(RX, TX, false);
+SerialCommand sCmd(mySerial);
 
 String inputString = "";
 bool stringComplete = false;
@@ -28,13 +34,14 @@ int port = 3484;                  //Cổng dịch vụ socket server do chúng t
 // Rfull: Danh sách biến (được đóng gói lại là chuối JSON)
 extern String RID;
 //extern String Rfull;
+extern String Rfull;
  
  
 //Một số biến dùng cho việc tạo một task
 unsigned long previousMillis = 0;
 long interval = 1000;
 
-String ChuoiSendWebJson = "{\"Do\":\"" + String(1) + "\"," +
+String ChuoiSendJson = "{\"Do\":\"" + String(1) + "\"," +
                      "\"XANH\":\"" + String(2) + "\"," +
                      "\"VANG\":\"" + String(3) +  "\"}";
 
@@ -44,6 +51,7 @@ void setup()
     //Bật baudrate ở mức 115200 để giao tiếp với máy tính qua Serial
     Serial.begin(57600);
 //    ​mySerial.begin(57600);
+    mySerial.begin(57600);
     delay(10);
  
     //Việc đầu tiên cần làm là kết nối vào mạng Wifi
@@ -75,11 +83,15 @@ void setup()
         //Thì gửi sự kiện ("connection") đến Socket server ahihi.
         client.send("connection", "message", "Connected !!!!");
     }
+
+    sCmd.addDefaultHandler(defaultCommand);
+    Serial.println("Dan san sang nhan JSON Hai Ngu Nay");
+
+    //Arduno send json ​root.printTo(mySerial); 
 }
  
 void loop()
 {
-    Serial.println(mySerial.available());
     //tạo một task cứ sau "interval" giây thì chạy lệnh:
     if (millis() - previousMillis > interval) {
         //lệnh:
@@ -87,7 +99,7 @@ void loop()
  
         //gửi sự kiện "atime" là một JSON chứa tham số message có nội dung là Time please?
         client.send("atime", "message", "Hai ML");
-        client.sendJSON("colors", ChuoiSendWebJson);
+        client.sendJSON("colors", ChuoiSendJson);
     }
  
     //Khi bắt được bất kỳ sự kiện nào thì chúng ta có hai tham số:
@@ -102,4 +114,13 @@ void loop()
     if (!client.connected()) {
       client.reconnect(host, port);
     }
+}
+
+void defaultCommand(String command){
+  char *json = sCmd.next();
+  //send json to socket server
+
+  //in ra Serial montitor de debugger
+  //    Serial.print(command);
+  Serial.print(json);
 }
