@@ -1,68 +1,50 @@
 #include <ESP8266WiFi.h>
 #include <SocketIOClient.h>
-//#include <ArduinoJson.h>
 #include <SoftwareSerial.h>
-#include <SerialCommand.h>
 
-extern "C" {
-  #include "user_interface.h"  
-}
+SoftwareSerial mySerial(D1, D2); 
 
-const byte RX = D1;
-const byte TX = D2;
-
-SoftwareSerial mySerial = SoftwareSerial(RX, TX, false);
-SerialCommand sCmd(mySerial);
-
-String inputString = "";
-bool stringComplete = false;
-String inputString1 = "";
-bool stringComplete1 = false;
-
+unsigned long t1 = 0, t2 = 0;
+String s = "";
+unsigned long data = 0, datas = 0;
+int redBoxs = 0;
+int blueBoxs = 0;
+int yellowBoxs = 0;
 #define DEBUG
 
 SocketIOClient client;
-const char* ssid = "realme C3i";          //Tên mạng Wifi mà Socket server của bạn đang kết nối
-const char* password = "01012000";  //Pass mạng wifi ahihi, anh em rãnh thì share pass cho mình với.
+const char* ssid = "realme C3i";
+const char* password = "01012000";
+
+char host[] = "192.168.43.172"; 
+int port = 3000;
  
-char host[] = "192.168.43.172";  //Địa chỉ IP dịch vụ, hãy thay đổi nó theo địa chỉ IP Socket server của bạn.
-int port = 3484;                  //Cổng dịch vụ socket server do chúng ta tạo!
- 
-//từ khóa extern: dùng để #include các biến toàn cục ở một số thư viện khác. Trong thư viện SocketIOClient có hai biến toàn cục
-// mà chúng ta cần quan tâm đó là
-// RID: Tên hàm (tên sự kiện
-// Rfull: Danh sách biến (được đóng gói lại là chuối JSON)
 extern String RID;
-//extern String Rfull;
-extern String Rfull;
- 
+extern String Rname;
+extern String Rcontent;
  
 //Một số biến dùng cho việc tạo một task
 unsigned long previousMillis = 0;
 long interval = 1000;
 
-String ChuoiSendJson = "{\"Do\":\"" + String(1) + "\"," +
-                     "\"XANH\":\"" + String(2) + "\"," +
-                     "\"VANG\":\"" + String(3) +  "\"}";
+String ChuoiSendJson = "{\"Red\":\"" + String(redBoxs) + "\"," +
+                     "\"Green\":\"" + String(blueBoxs) + "\"," +
+                     "\"Yellow\":\"" + String(yellowBoxs) +  "\"}";
 
  
 void setup()
 {
-    //Bật baudrate ở mức 115200 để giao tiếp với máy tính qua Serial
     Serial.begin(57600);
-//    ​mySerial.begin(57600);
+
     mySerial.begin(57600);
     delay(10);
  
-    //Việc đầu tiên cần làm là kết nối vào mạng Wifi
     Serial.print("Ket noi vao mang ");
     Serial.println(ssid);
- 
-    //Kết nối vào mạng Wifi
+    
     WiFi.begin(ssid, password);
- 
-    //Chờ đến khi đã được kết nối
-    while (WiFi.status() != WL_CONNECTED) { //Thoát ra khỏi vòng 
+
+    while (WiFi.status() != WL_CONNECTED) {
         delay(500);
         Serial.print('.');
     }
@@ -78,49 +60,62 @@ void setup()
     }
 
  
-    //Khi đã kết nối thành công
     if (client.connected()) {
-        //Thì gửi sự kiện ("connection") đến Socket server ahihi.
         client.send("connection", "message", "Connected !!!!");
     }
-
-    sCmd.addDefaultHandler(defaultCommand);
-    Serial.println("Dan san sang nhan JSON Hai Ngu Nay");
-
-    //Arduno send json ​root.printTo(mySerial); 
 }
  
 void loop()
 {
+   if(mySerial.available())
+    {
+      char c = mySerial.read();
+      s += c;
+      if(c == '\n')
+      {
+        if (s.toInt() / 1000000 == 1)
+        {
+          data = s.toInt();
+          if(datas != data)
+          {
+            datas = data;
+            redBoxs = datas % 100;
+            datas = datas / 100;  
+            blueBoxs = datas % 100;
+            datas = datas / 100;
+            yellowBoxs = datas % 100;
+          }
+        }
+      }
+      s = "";
+    }
+    
     //tạo một task cứ sau "interval" giây thì chạy lệnh:
     if (millis() - previousMillis > interval) {
         //lệnh:
         previousMillis = millis();
  
-        //gửi sự kiện "atime" là một JSON chứa tham số message có nội dung là Time please?
         client.send("atime", "message", "Hai ML");
         client.sendJSON("colors", ChuoiSendJson);
     }
  
-    //Khi bắt được bất kỳ sự kiện nào thì chúng ta có hai tham số:
-    //  +RID: Tên sự kiện
-    //  +RFull: Danh sách tham số được nén thành chuỗi JSON!
     if (client.monitor()) {
         Serial.println(RID);
-//        Serial.println(Rfull);
     }
+
+     if (client.monitor()) {
+        Serial.println(RID);
+        if (RID == "arduno-stop" && Rname == "stop")
+        {
+          Serial.print("Il est ");
+          Serial.println(Rcontent);
+          mySerial.println(String(Rcontent));
+          delay(100);
+        }
+      }
  
     //Kết nối lại!
     if (!client.connected()) {
       client.reconnect(host, port);
     }
-}
-
-void defaultCommand(String command){
-  char *json = sCmd.next();
-  //send json to socket server
-
-  //in ra Serial montitor de debugger
-  //    Serial.print(command);
-  Serial.print(json);
 }

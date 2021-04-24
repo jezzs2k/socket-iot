@@ -52,7 +52,7 @@ io.on('connection', function(socket) {
 		}, 1000);
 
 	socket.on('stop-device', (val) => {
-		socket.emit('arduno-stop', 'stop');
+		socket.emit('arduno-stop', 'stop', 1);
 	})
 
 	socket.on('colors', (val) => {
