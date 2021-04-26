@@ -4,12 +4,6 @@
 
 SoftwareSerial mySerial(D1, D2); 
 
-unsigned long t1 = 0, t2 = 0;
-String s = "";
-unsigned long data = 0, datas = 0;
-int redBoxs = 0;
-int blueBoxs = 0;
-int yellowBoxs = 0;
 #define DEBUG
 
 SocketIOClient client;
@@ -24,19 +18,15 @@ extern String Rname;
 extern String Rcontent;
  
 //Một số biến dùng cho việc tạo một task
-unsigned long previousMillis = 0;
-long interval = 1000;
+//unsigned long previousMillis = 0;
+//long interval = 1000;
 
-String ChuoiSendJson = "{\"Red\":\"" + String(redBoxs) + "\"," +
-                     "\"Green\":\"" + String(blueBoxs) + "\"," +
-                     "\"Yellow\":\"" + String(yellowBoxs) +  "\"}";
+String s = "";
 
- 
-void setup()
-{
-    Serial.begin(57600);
-
-    mySerial.begin(57600);
+void setup(){
+    Serial.begin(9600);
+    mySerial.begin(9600);
+    
     delay(10);
  
     Serial.print("Ket noi vao mang ");
@@ -65,50 +55,27 @@ void setup()
     }
 }
  
-void loop()
-{
-   if(mySerial.available())
-    {
+void loop(){
+   if(mySerial.available()){
       char c = mySerial.read();
       s += c;
-      if(c == '\n')
-      {
-        if (s.toInt() / 1000000 == 1)
-        {
-          data = s.toInt();
-          if(datas != data)
-          {
-            datas = data;
-            redBoxs = datas % 100;
-            datas = datas / 100;  
-            blueBoxs = datas % 100;
-            datas = datas / 100;
-            yellowBoxs = datas % 100;
-          }
-        }
+      if(c == '#') {
+        client.send("colors", "colors", s);
       }
+  
       s = "";
     }
     
     //tạo một task cứ sau "interval" giây thì chạy lệnh:
-    if (millis() - previousMillis > interval) {
-        //lệnh:
-        previousMillis = millis();
- 
-        client.send("atime", "message", "Hai ML");
-        client.sendJSON("colors", ChuoiSendJson);
-    }
- 
-    if (client.monitor()) {
-        Serial.println(RID);
-    }
+    //    if (millis() - previousMillis > interval) {
+    //        previousMillis = millis();
+    // 
+    //        client.send("atime", "message", "Hai ML");
+    //        client.sendJSON("colors", ChuoiSendJson);
+    //    }
 
      if (client.monitor()) {
-        Serial.println(RID);
-        if (RID == "arduno-stop" && Rname == "stop")
-        {
-          Serial.print("Il est ");
-          Serial.println(Rcontent);
+        if (RID == "arduno-stop" && Rname == "stop"){
           mySerial.println(String(Rcontent));
           delay(100);
         }

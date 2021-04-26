@@ -3,7 +3,7 @@ const app = express();
 const ip = require('ip');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
-	path: '/client'
+	allowEIO3: true,
 });
 const PORT = process.env.PORT || 3000;
 
@@ -23,41 +23,27 @@ let red = 0;
 let blue = 0;
 let green = 0;
 
-let response = {};
-
-const updateItem = (colors) => {
-	//list ==> {red: '', green: '', blue: ''}
-
-	
-};
-
 io.on('connection', function(socket) {	
     console.log("Connected ", socket.id); 
 
 	socket.emit('connect-item', 'ok')
 
-	//demo
-	setInterval(() => {
-		if (Math.random() > 0.8) {
-			red ++;
-			response = {color: '#e74c3c', total: red, type: 'red'}
-		}else if (Math.random() <= 0.8 && Math.random() > 0.5) {
-			green ++;
-			response = {color: '#2ed573', total: green, type: 'green'}
-		}else{
-			blue ++;
-			response = {color: '#1e90ff', total: blue, type: 'blue'}
-		}
-			socket.emit('colors-to-app', response)
-		}, 1000);
-
 	socket.on('stop-device', (val) => {
-		socket.emit('arduno-stop', 'stop', 1);
+		socket.emit('arduno-stop', 'stop', 'stop');
 	})
 
 	socket.on('colors', (val) => {
+		const {colors} = val;
+		
+		red = parseInt(colors.slice(1,3));
+		green =  parseInt(colors.slice(3,5));
+		blue =  parseInt(colors.slice(5,7));
+
+		socket.emit('colors-to-app', {red, green, blue});
+	});
+
+	socket.on('atime', (val) => {
 		console.log(val);
-		socket.emit('colors-to-app', val);
 	});
 
 	socket.on('disconnect', function() {
