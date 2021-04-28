@@ -1,5 +1,6 @@
 const express = require('express');
 const app = express();
+const ip = require('ip');
 const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
 	allowEIO3: true,
@@ -7,7 +8,7 @@ const io = require('socket.io')(server, {
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-	console.log("Server run with port: " + PORT)
+	console.log("Server run with port: " + ip.address() + ":" + PORT)
 });
 
 app.use((req, res, next) => {
