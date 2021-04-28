@@ -19,6 +19,10 @@ app.use((req, res, next) => {
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+app.get('/', (req, res) => {
+	res.send('Hieu Dz');
+})
+
 let red = 0;
 let blue = 0;
 let green = 0;
