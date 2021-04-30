@@ -7,6 +7,8 @@ const io = require('socket.io')(server, {
 });
 const PORT = process.env.PORT || 3000;
 
+console.log(PORT);
+
 server.listen(PORT, () => {
 	console.log("Server run with port: " + ip.address() + ":" + PORT)
 });
