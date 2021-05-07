@@ -57,7 +57,7 @@ io.on('connection', function(socket) {
 				response = {color: '#1e90ff', total: blueTest, type: 'blue'}
 			}
 				socket.emit('colors-to-app', response)
-			}, 1000);
+			}, 1500);
 	})
 
 	socket.on('colors', (val) => {
