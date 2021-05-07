@@ -38,19 +38,23 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('start-device', ({isStart}) => {
+		let redTest = 0;
+		let blueTest = 0;
+		let greenTest = 0;
+		
 		socket.emit('arduno-start', 'start', 'start');
 		socket.emit('start-success');
 		
 		setInterval(() => {
 			if (Math.random() > 0.8) {
-				red ++;
-				response = {color: '#e74c3c', total: red, type: 'red'}
+				redTest ++;
+				response = {color: '#e74c3c', total: redTest, type: 'red'}
 			}else if (Math.random() <= 0.8 && Math.random() > 0.5) {
-				green ++;
-				response = {color: '#2ed573', total: green, type: 'green'}
+				greenTest ++;
+				response = {color: '#2ed573', total: greenTest, type: 'green'}
 			}else{
-				blue ++;
-				response = {color: '#1e90ff', total: blue, type: 'blue'}
+				blueTest ++;
+				response = {color: '#1e90ff', total: blueTest, type: 'blue'}
 			}
 				socket.emit('colors-to-app', response)
 			}, 1000);
