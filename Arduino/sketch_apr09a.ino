@@ -79,6 +79,11 @@ void loop(){
           mySerial.println(String(Rcontent));
           delay(100);
         }
+
+         if (RID == "arduno-start" && Rname == "start"){
+          mySerial.println(String(Rcontent));
+          delay(100);
+        }
       }
  
     //Kết nối lại!
