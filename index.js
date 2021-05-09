@@ -45,23 +45,25 @@ io.on('connection', function(socket) {
 		socket.emit('arduno-start', 'start', 'start');
 		socket.emit('start-success');
 		
-		setInterval(() => {
-			if (Math.random() > 0.8) {
-				redTest ++;
-				response = {color: '#e74c3c', total: redTest, type: 'red'}
-			}else if (Math.random() <= 0.8 && Math.random() > 0.5) {
-				greenTest ++;
-				response = {color: '#2ed573', total: greenTest, type: 'green'}
-			}else{
-				blueTest ++;
-				response = {color: '#1e90ff', total: blueTest, type: 'blue'}
-			}
-				socket.emit('colors-to-app', response)
-			}, 1500);
+		// setInterval(() => {
+		// 	if (Math.random() > 0.8) {
+		// 		redTest ++;
+		// 		response = {color: '#e74c3c', total: redTest, type: 'red'}
+		// 	}else if (Math.random() <= 0.8 && Math.random() > 0.5) {
+		// 		greenTest ++;
+		// 		response = {color: '#2ed573', total: greenTest, type: 'green'}
+		// 	}else{
+		// 		blueTest ++;
+		// 		response = {color: '#1e90ff', total: blueTest, type: 'blue'}
+		// 	}
+		// 		socket.emit('colors-to-app', response)
+		// 	}, 1500);
 	})
 
 	socket.on('colors', (val) => {
 		const {colors} = val;
+
+		console.log(colors);
 		
 		if (red !== parseInt(colors.slice(1,3))) {
 			response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
@@ -79,7 +81,9 @@ io.on('connection', function(socket) {
 		green =  parseInt(colors.slice(3,5));
 		blue =  parseInt(colors.slice(5,7));
 
-		socket.emit('colors-to-app', {red, green, blue});
+		socket.emit('colors-to-app', response);
+
+		console.log(response);
 	});
 	
 	socket.on('disconnect', function() {
