@@ -89,7 +89,7 @@ io.on('connection', function(socket) {
 		blue =  parseInt(colors.slice(5,7));
 		
 		
-		socket.emit('colors-to-app', response);
+		// socket.emit('colors-to-app', response);
 
 		console.log(response);
 	});
