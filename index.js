@@ -5,6 +5,9 @@ const server = require('http').createServer(app);
 const io = require('socket.io')(server, {
 	allowEIO3: true,
 });
+
+console.log(process.env.PORT);
+
 const PORT = process.env.PORT || 3000;
 
 console.log(PORT);
@@ -38,9 +41,9 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('start-device', ({isStart}) => {
-		let redTest = 0;
-		let blueTest = 0;
-		let greenTest = 0;
+		// let redTest = 0;
+		// let blueTest = 0;
+		// let greenTest = 0;
 		
 		socket.emit('arduno-start', 'start', 'start');
 		socket.emit('start-success');
@@ -63,7 +66,7 @@ io.on('connection', function(socket) {
 	socket.on('colors', (val) => {
 		const {colors} = val;
 
-		console.log(colors);
+		console.log(typeof colors, val);
 		
 		if (red !== parseInt(colors.slice(1,3))) {
 			response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
@@ -77,11 +80,13 @@ io.on('connection', function(socket) {
 			response = {color: '#1e90ff', total: parseInt(colors.slice(5,7)), type: 'blue'}
 		}
 
+		socket.emit('colors-to-app', response);
+
 		red = parseInt(colors.slice(1,3));
 		green =  parseInt(colors.slice(3,5));
 		blue =  parseInt(colors.slice(5,7));
 
-		socket.emit('colors-to-app', response);
+		
 
 		console.log(response);
 	});
