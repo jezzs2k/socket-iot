@@ -64,10 +64,10 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('colors', (val) => {
-		const {colors} = val;
+		const colors = val?.colors;
 
 		console.log(typeof colors, 'val', val, 'colors', colors);
-		if (typeof colors !== 'string') {
+		if (colors && typeof colors !== 'string') {
 			return;
 		}
 		
