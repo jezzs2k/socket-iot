@@ -67,28 +67,31 @@ io.on('connection', function(socket) {
 		const {colors} = val;
 
 		console.log(typeof colors, 'val', val, 'colors', colors);
+		if (typeof colors !== 'string') {
+			return;
+		}
 		
-		// if (red !== parseInt(colors.slice(1,3))) {
-		// 	response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
-		// }
+		if (red !== parseInt(colors.slice(1,3))) {
+			response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
+		}
 
-		// if (green !== parseInt(colors.slice(3,5))) {
-		// 	response = {color: '#2ed573', total: parseInt(colors.slice(3,4)), type: 'green'}
-		// }
+		if (green !== parseInt(colors.slice(3,5))) {
+			response = {color: '#2ed573', total: parseInt(colors.slice(3,4)), type: 'green'}
+		}
 
-		// if (blue !== parseInt(colors.slice(3,5))) {
-		// 	response = {color: '#1e90ff', total: parseInt(colors.slice(5,7)), type: 'blue'}
-		// }
-
-		// socket.emit('colors-to-app', response);
-
-		// red = parseInt(colors.slice(1,3));
-		// green =  parseInt(colors.slice(3,5));
-		// blue =  parseInt(colors.slice(5,7));
+		if (blue !== parseInt(colors.slice(3,5))) {
+			response = {color: '#1e90ff', total: parseInt(colors.slice(5,7)), type: 'blue'}
+		}
 
 		
+		red = parseInt(colors.slice(1,3));
+		green =  parseInt(colors.slice(3,5));
+		blue =  parseInt(colors.slice(5,7));
+		
+		
+		socket.emit('colors-to-app', response);
 
-		// console.log(response);
+		console.log(response);
 	});
 	
 	socket.on('disconnect', function() {
