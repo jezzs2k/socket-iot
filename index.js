@@ -1,3 +1,6 @@
+const admin = require("firebase-admin");
+const serviceAccount = require("./htcdt-iot-firebase-adminsdk-lvhlo-907df7608b.json");
+
 const express = require('express');
 const app = express();
 const ip = require('ip');
@@ -27,6 +30,24 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
 	res.send('Hieu Dz');
 })
+
+const adminF = admin.initializeApp({
+	credential: admin.credential.cert(serviceAccount),
+	databaseURL: 'https://htcdt-iot-default-rtdb.firebaseio.com/'
+});
+
+const db = adminF.database();
+const ref = db.ref("/iot");
+
+ref.once("value", function(snapshot) {
+	console.log('snapshot.val()', snapshot.val());
+});
+
+// ref.push().set({
+// 	testSave: false,
+// 	oke: true,
+// 	quanAp: "cccccccc"
+// })
 
 let red = 0;
 let blue = 0;
@@ -70,25 +91,30 @@ io.on('connection', function(socket) {
 		if (colors && typeof colors !== 'string') {
 			return;
 		}
-		
-		// if (red !== parseInt(colors.slice(1,3))) {
-		// 	response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
-		// }
 
-		// if (green !== parseInt(colors.slice(3,5))) {
-		// 	response = {color: '#2ed573', total: parseInt(colors.slice(3,4)), type: 'green'}
-		// }
+	
+		
+		if (red !== parseInt(colors.slice(1,3))) {
+			response = {color: '#e74c3c', total: parseInt(colors.slice(1,3)), type: 'red'}
+		}
 
-		// if (blue !== parseInt(colors.slice(3,5))) {
-		// 	response = {color: '#1e90ff', total: parseInt(colors.slice(5,7)), type: 'blue'}
-		// }
+		if (green !== parseInt(colors.slice(3,5))) {
+			response = {color: '#2ed573', total: parseInt(colors.slice(3,4)), type: 'green'}
+		}
+
+		if (blue !== parseInt(colors.slice(3,5))) {
+			response = {color: '#1e90ff', total: parseInt(colors.slice(5,7)), type: 'blue'}
+		}
 
 		
-		// red = parseInt(colors.slice(1,3));
-		// green =  parseInt(colors.slice(3,5));
-		// blue =  parseInt(colors.slice(5,7));
+		red = parseInt(colors.slice(1,3));
+		green =  parseInt(colors.slice(3,5));
+		blue =  parseInt(colors.slice(5,7));
 		
-		
+		ref.push().set({
+			date: new Date,
+			response
+		})
 		// socket.emit('colors-to-app', response);
 
 		console.log(response);
@@ -98,4 +124,3 @@ io.on('connection', function(socket) {
 		console.log("disconnect");
 	})
 });
-
