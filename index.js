@@ -111,13 +111,16 @@ io.on('connection', function(socket) {
 		green =  parseInt(colors.slice(3,5));
 		blue =  parseInt(colors.slice(5,7));
 		
+		socket.emit('colors-to-app', response);
+
+		console.log(response);
+		
 		ref.push().set({
 			date: new Date,
 			response
-		})
-		// socket.emit('colors-to-app', response);
+		});
 
-		console.log(response);
+
 	});
 	
 	socket.on('disconnect', function() {
