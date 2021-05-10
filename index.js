@@ -43,12 +43,6 @@ ref.once("value", function(snapshot) {
 	console.log('snapshot.val()', snapshot.val());
 });
 
-// ref.push().set({
-// 	testSave: false,
-// 	oke: true,
-// 	quanAp: "cccccccc"
-// })
-
 let red = 0;
 let blue = 0;
 let green = 0;
@@ -62,26 +56,8 @@ io.on('connection', function(socket) {
 	})
 
 	socket.on('start-device', ({isStart}) => {
-		// let redTest = 0;
-		// let blueTest = 0;
-		// let greenTest = 0;
-		
 		socket.emit('arduno-start', 'start', 'start');
 		socket.emit('start-success');
-		
-		// setInterval(() => {
-		// 	if (Math.random() > 0.8) {
-		// 		redTest ++;
-		// 		response = {color: '#e74c3c', total: redTest, type: 'red'}
-		// 	}else if (Math.random() <= 0.8 && Math.random() > 0.5) {
-		// 		greenTest ++;
-		// 		response = {color: '#2ed573', total: greenTest, type: 'green'}
-		// 	}else{
-		// 		blueTest ++;
-		// 		response = {color: '#1e90ff', total: blueTest, type: 'blue'}
-		// 	}
-		// 		socket.emit('colors-to-app', response)
-		// 	}, 1500);
 	})
 
 	socket.on('colors', (val) => {
@@ -110,18 +86,22 @@ io.on('connection', function(socket) {
 		red = parseInt(colors.slice(1,3));
 		green =  parseInt(colors.slice(3,5));
 		blue =  parseInt(colors.slice(5,7));
-		
-		socket.emit('colors-to-app', response);
 
 		console.log(response);
-		
-		ref.push().set({
-			date: new Date,
-			response
-		});
+
+		// ref.push().set({
+		// 	date: new Date().toJSON(),
+		// 	response
+		// });
 
 
 	});
+
+	setInterval(() => {
+		console.log(response);
+
+		socket.emit('colors-to-app', response);
+	}, 1000)
 	
 	socket.on('disconnect', function() {
 		console.log("disconnect");
